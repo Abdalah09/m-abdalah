@@ -1,0 +1,6 @@
+{
+  "name": "Dompet Pintar",
+  "description": "Aplikasi pencatat keuangan pribadi lengkap untuk mengelola pemasukan, pengeluaran, anggaran, tagihan, dan laporan keuangan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

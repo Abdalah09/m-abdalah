@@ -1,0 +1,148 @@
+{
+  "entities": {
+    "Account": {
+      "title": "Account",
+      "description": "Represents a bank, cash, or digital wallet account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["CASH", "BANK", "E_WALLET", "SAVINGS", "BUSINESS"] },
+        "balance": { "type": "number" },
+        "initialBalance": { "type": "number" },
+        "accountNumber": { "type": "string" },
+        "colorHex": { "type": "string" },
+        "profile": { "type": "string", "enum": ["PERSONAL", "FAMILY"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "name", "type", "balance", "profile"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Represents a financial transaction (income, expense, or transfer)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["INCOME", "EXPENSE", "TRANSFER"] },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "accountId": { "type": "string" },
+        "toAccountId": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "notes": { "type": "string" },
+        "tag": { "type": "string" },
+        "isRecurring": { "type": "boolean" },
+        "recurringFrequency": { "type": "string", "enum": ["NONE", "DAILY", "WEEKLY", "MONTHLY"] },
+        "status": { "type": "string", "enum": ["COMPLETED", "PENDING"] },
+        "receiptUrl": { "type": "string" },
+        "profile": { "type": "string", "enum": ["PERSONAL", "FAMILY"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "type", "amount", "category", "accountId", "profile"]
+    },
+    "Budget": {
+      "title": "Budget",
+      "description": "Represents monthly category budget allowance",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "month": { "type": "string" },
+        "profile": { "type": "string", "enum": ["PERSONAL", "FAMILY"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "category", "amount", "month", "profile"]
+    },
+    "Bill": {
+      "title": "Bill",
+      "description": "Represents recurring bills and utilities",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "amount": { "type": "number" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "category": { "type": "string" },
+        "isPaid": { "type": "boolean" },
+        "recurring": { "type": "string" },
+        "profile": { "type": "string", "enum": ["PERSONAL", "FAMILY"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "name", "amount", "isPaid", "profile"]
+    },
+    "Debt": {
+      "title": "Debt",
+      "description": "Represents payable debt or receivable loan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["DEBT", "RECEIVABLE"] },
+        "personName": { "type": "string" },
+        "amount": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string" },
+        "isSettled": { "type": "boolean" },
+        "profile": { "type": "string", "enum": ["PERSONAL", "FAMILY"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "type", "personName", "amount", "paidAmount", "isSettled", "profile"]
+    },
+    "Goal": {
+      "title": "Goal",
+      "description": "Represents a savings goal or piggy bank target",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "targetAmount": { "type": "number" },
+        "currentAmount": { "type": "number" },
+        "targetDate": { "type": "string", "format": "date-time" },
+        "icon": { "type": "string" },
+        "profile": { "type": "string", "enum": ["PERSONAL", "FAMILY"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "targetAmount", "currentAmount", "profile"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/accounts/{accountId}": {
+      "schema": { "$ref": "#/entities/Account" },
+      "description": "User bank and wallet accounts"
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "User income, expense, and transfer records"
+    },
+    "/users/{userId}/budgets/{budgetId}": {
+      "schema": { "$ref": "#/entities/Budget" },
+      "description": "User monthly category budgets"
+    },
+    "/users/{userId}/bills/{billId}": {
+      "schema": { "$ref": "#/entities/Bill" },
+      "description": "User upcoming bills and reminders"
+    },
+    "/users/{userId}/debts/{debtId}": {
+      "schema": { "$ref": "#/entities/Debt" },
+      "description": "User debts and receivables"
+    },
+    "/users/{userId}/goals/{goalId}": {
+      "schema": { "$ref": "#/entities/Goal" },
+      "description": "User savings targets"
+    }
+  }
+}

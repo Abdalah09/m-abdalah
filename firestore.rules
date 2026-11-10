@@ -1,0 +1,124 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidTimestamp(val) {
+      return val == null || val is timestamp;
+    }
+
+    function isValidAccount(data, userId) {
+      return data.userId == userId &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.type in ['CASH', 'BANK', 'E_WALLET', 'SAVINGS', 'BUSINESS'] &&
+             data.balance is number &&
+             data.profile in ['PERSONAL', 'FAMILY'] &&
+             isValidTimestamp(data.get('createdAt', null)) &&
+             isValidTimestamp(data.get('updatedAt', null));
+    }
+
+    function isValidTransaction(data, userId) {
+      return data.userId == userId &&
+             data.type in ['INCOME', 'EXPENSE', 'TRANSFER'] &&
+             data.amount is number && data.amount > 0 &&
+             data.category is string &&
+             data.accountId is string &&
+             data.profile in ['PERSONAL', 'FAMILY'] &&
+             isValidTimestamp(data.get('date', null)) &&
+             isValidTimestamp(data.get('createdAt', null)) &&
+             isValidTimestamp(data.get('updatedAt', null));
+    }
+
+    function isValidBudget(data, userId) {
+      return data.userId == userId &&
+             data.category is string && data.category.size() > 0 &&
+             data.amount is number && data.amount > 0 &&
+             data.month is string &&
+             data.profile in ['PERSONAL', 'FAMILY'] &&
+             isValidTimestamp(data.get('createdAt', null)) &&
+             isValidTimestamp(data.get('updatedAt', null));
+    }
+
+    function isValidBill(data, userId) {
+      return data.userId == userId &&
+             data.name is string && data.name.size() > 0 &&
+             data.amount is number && data.amount > 0 &&
+             data.isPaid is bool &&
+             data.profile in ['PERSONAL', 'FAMILY'] &&
+             isValidTimestamp(data.get('dueDate', null)) &&
+             isValidTimestamp(data.get('createdAt', null)) &&
+             isValidTimestamp(data.get('updatedAt', null));
+    }
+
+    function isValidDebt(data, userId) {
+      return data.userId == userId &&
+             data.type in ['DEBT', 'RECEIVABLE'] &&
+             data.personName is string && data.personName.size() > 0 &&
+             data.amount is number && data.amount > 0 &&
+             data.paidAmount is number &&
+             data.isSettled is bool &&
+             data.profile in ['PERSONAL', 'FAMILY'] &&
+             isValidTimestamp(data.get('dueDate', null)) &&
+             isValidTimestamp(data.get('createdAt', null)) &&
+             isValidTimestamp(data.get('updatedAt', null));
+    }
+
+    function isValidGoal(data, userId) {
+      return data.userId == userId &&
+             data.title is string && data.title.size() > 0 &&
+             data.targetAmount is number && data.targetAmount > 0 &&
+             data.currentAmount is number &&
+             data.profile in ['PERSONAL', 'FAMILY'] &&
+             isValidTimestamp(data.get('targetDate', null)) &&
+             isValidTimestamp(data.get('createdAt', null)) &&
+             isValidTimestamp(data.get('updatedAt', null));
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /accounts/{accountId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidAccount(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidAccount(request.resource.data, userId);
+      }
+
+      match /transactions/{transactionId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidTransaction(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidTransaction(request.resource.data, userId);
+      }
+
+      match /budgets/{budgetId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidBudget(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidBudget(request.resource.data, userId);
+      }
+
+      match /bills/{billId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidBill(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidBill(request.resource.data, userId);
+      }
+
+      match /debts/{debtId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidDebt(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidDebt(request.resource.data, userId);
+      }
+
+      match /goals/{goalId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidGoal(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidGoal(request.resource.data, userId);
+      }
+    }
+  }
+}
